@@ -114,29 +114,37 @@ export const AnalyzeRiskWorkflow: React.FC<AnalyzeRiskWorkflowProps> = ({
     }
   };
 
+  const [pipelineLogs, setPipelineLogs] = useState<any[]>([]);
+
   const handleValidate = () => {
     const payload = getPayload();
     const normalized = InputNormalizer.normalize(payload);
     setNormalizedCase(normalized);
   };
 
-  const handleRunAnalysis = () => {
+  const handleRunAnalysis = (autoRedirect: boolean = false) => {
     setIsAnalyzing(true);
+    setPipelineLogs([]);
     const payload = getPayload();
 
     setTimeout(() => {
       const result = RocketRidePipelineOrchestrator.executeAnalyzeRiskPipeline(payload);
       setNormalizedCase(result.output.normalizedCase);
       setCreatedIncident(result.output.incident);
+      setPipelineLogs(result.stepLogs);
       onIncidentCreated(result.output.incident);
       setIsAnalyzing(false);
 
-      setTimeout(() => {
-        const resultsEl = document.getElementById('risk-analysis-results-section');
-        if (resultsEl) {
-          resultsEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-      }, 100);
+      if (autoRedirect) {
+        onViewIncidentDetails(result.output.incident);
+      } else {
+        setTimeout(() => {
+          const resultsEl = document.getElementById('risk-analysis-results-section');
+          if (resultsEl) {
+            resultsEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }, 100);
+      }
     }, 800);
   };
 
@@ -329,12 +337,15 @@ export const AnalyzeRiskWorkflow: React.FC<AnalyzeRiskWorkflowProps> = ({
           </div>
         )}
 
-        <div style={{ marginTop: 18, display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
+        <div style={{ marginTop: 18, display: 'flex', gap: 10, justifyContent: 'flex-end', flexWrap: 'wrap' }}>
           <Button variant="secondary" onClick={handleValidate}>
             Normalize & Validate Input
           </Button>
-          <Button variant="primary" onClick={handleRunAnalysis} disabled={isAnalyzing}>
-            {isAnalyzing ? 'Executing Agent Pipeline...' : '⚡ Run Risk Analysis'}
+          <Button variant="secondary" onClick={() => handleRunAnalysis(false)} disabled={isAnalyzing}>
+            {isAnalyzing ? 'Executing Pipeline...' : '⚡ Run Risk Analysis'}
+          </Button>
+          <Button variant="primary" onClick={() => handleRunAnalysis(true)} disabled={isAnalyzing}>
+            {isAnalyzing ? 'Executing Pipeline...' : '🚀 Run & Open Risk Workspace →'}
           </Button>
         </div>
       </div>
