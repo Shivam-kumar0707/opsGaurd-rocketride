@@ -1,0 +1,70 @@
+{
+	"components": [
+		{
+			"id": "webhook_approval",
+			"provider": "webhook",
+			"config": {
+				"hideForm": true,
+				"mode": "Source",
+				"parameters": {},
+				"type": "webhook"
+			},
+			"ui": { "position": { "x": 20, "y": 200 } }
+		},
+		{
+			"id": "agent_approval",
+			"provider": "agent_rocketride",
+			"config": {
+				"instructions": [
+					"Execute Human Approval Workflow: verify actor role, enforce idempotency key, execute state machine transition (PROPOSED -> APPROVED / MODIFIED / REJECTED -> EXECUTED), and append to SHA-256 tamper-evident audit chain."
+				],
+				"max_waves": 5,
+				"parameters": {}
+			},
+			"input": [
+				{ "lane": "questions", "from": "webhook_approval" }
+			],
+			"ui": { "position": { "x": 240, "y": 200 } }
+		},
+		{
+			"id": "llm_openai_approval",
+			"provider": "llm_openai",
+			"config": {
+				"profile": "openai-5",
+				"openai-5": {
+					"apikey": "${ROCKETRIDE_OPENAI_KEY}"
+				},
+				"parameters": {}
+			},
+			"control": [
+				{ "classType": "llm", "from": "agent_approval" }
+			],
+			"ui": { "position": { "x": 240, "y": 360 } }
+		},
+		{
+			"id": "memory_approval",
+			"provider": "memory_internal",
+			"config": {
+				"type": "memory_internal"
+			},
+			"control": [
+				{ "classType": "memory", "from": "agent_approval" }
+			],
+			"ui": { "position": { "x": 400, "y": 360 } }
+		},
+		{
+			"id": "response_approval",
+			"provider": "response_json",
+			"config": {
+				"laneName": "approvalResult"
+			},
+			"input": [
+				{ "lane": "answers", "from": "agent_approval" }
+			],
+			"ui": { "position": { "x": 460, "y": 200 } }
+		}
+	],
+	"project_id": "d34a56b7-890c-12de-fa34-567890123456",
+	"viewport": { "x": 0, "y": 0, "zoom": 1 },
+	"version": 1
+}

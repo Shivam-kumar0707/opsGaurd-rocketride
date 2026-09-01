@@ -1,0 +1,27 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug Team Next",
+      "type": "msedge",
+      "request": "launch",
+      "url": "https://staging.rocketride.ai:443/?appid=local.team-next&rrdev=1",
+      "webRoot": "${workspaceFolder}/apps/team-next-ui",
+      "sourceMapPathOverrides": {
+        "webpack:///./*": "${workspaceFolder}/apps/team-next-ui/*",
+        "webpack:///*": "*"
+      }
+    },
+    {
+      "name": "Debug OpsGuard",
+      "type": "msedge",
+      "request": "launch",
+      "url": "https://staging.rocketride.ai:443/?appid=teamnext.opsguard&rrdev=1",
+      "webRoot": "${workspaceFolder}/apps/opsguard-ui",
+      "sourceMapPathOverrides": {
+        "webpack:///./*": "${workspaceFolder}/apps/opsguard-ui/*",
+        "webpack:///*": "*"
+      }
+    }
+  ]
+}
